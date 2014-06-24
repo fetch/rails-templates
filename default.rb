@@ -5,7 +5,7 @@ git commit: %Q{ -m 'Initial commit' }
 
 # Gems
 # ==================================================
-file 'Gemfile', <<-CODE
+gemfile_content = <<-CODE
 source 'https://rubygems.org'
 
 # Core
@@ -27,19 +27,30 @@ gem 'jquery-rails'
 gem 'simple_form', git: 'https://github.com/plataformatec/simple_form'
 # gem 'nested_form'
 gem 'jbuilder', '~> 2.0'
+CODE
 
+if ask "Authentication and authorization?"
+  gemfile_content << <<-CODE
 # Auth
-# gem 'devise'
-# gem 'pundit'
+gem 'devise'
+gem 'pundit'
 
-# Markdown parser
-# gem 'redcarpet'
+CODE
+  authentication_and_authorization = true
+end
 
+if ask "Uploads and attachments?"
+  gemfile_content << <<-CODE
 # Uploads and attachments
 gem 'carrierwave', '~> 0.10'
 gem 'mini_magick', '~> 3.7'
 gem 'fog', '~> 1.22'
 
+CODE
+  uploads_and_attachments = true
+end
+
+gemfile_content << <<-CODE
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
@@ -71,13 +82,17 @@ group :doc do
 end
 CODE
 
+
+file 'Gemfile', gemfile_content
+
 # Install gems
 run "bundle install"
 
 
 # Install initializer for CarrierWave
 # ==================================================
-initializer 'carrierwave.rb', <<-CODE
+if uploads_and_attachments
+  initializer 'carrierwave.rb', <<-CODE
 CarrierWave.configure do |config|
   config.cache_dir         = Rails.root.join('tmp/uploads')
   config.fog_credentials   = {
@@ -95,8 +110,20 @@ CarrierWave.configure do |config|
   config.storage           = Rails.env.production? ? :fog : :file
 end
 CODE
+end
 
-# Configure application for use with Foreman
+
+# Configure application
+# ==================================================
+application <<-CODE
+config.generators do |g|
+      g.javascript_engine :js
+      g.test_framework :rspec
+      g.fixture_replacement :factory_girl, dir: "spec/factories"
+    end
+CODE
+
+# Foreman configuration
 # ==================================================
 file 'Procfile', 'web: bundle exec puma -C ./config/puma.rb'
 
@@ -123,14 +150,13 @@ CODE
 # ==================================================
 generate('rspec:install')
 
-# Configure application
-application <<-CODE
-config.generators do |g|
-      g.javascript_engine :js
-      g.test_framework :rspec
-      g.fixture_replacement :factory_girl, dir: "spec/factories"
-    end
+if authentication_and_authorization
+  file 'spec/support/devise.rb', <<-CODE
+RSpec.configure do |config|
+  config.include Devise::TestHelpers, type: :controller
+end
 CODE
+end
 
 # Install SimpleForm
 # ==================================================
