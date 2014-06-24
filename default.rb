@@ -37,8 +37,8 @@ gem 'jbuilder', '~> 2.0'
 
 # Uploads and attachments
 gem 'carrierwave', '~> 0.10'
-# gem 'mini_magick', '~> 3.7'
-# gem 'fog', '~> 1.22'
+gem 'mini_magick', '~> 3.7'
+gem 'fog', '~> 1.22'
 
 group :development do
   gem 'better_errors'
