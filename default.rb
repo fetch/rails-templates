@@ -77,7 +77,7 @@ run "bundle install"
 
 # Install initializer for CarrierWave
 # ==================================================
-initializer 'carrierwave', <<-CODE
+initializer 'carrierwave.rb', <<-CODE
 CarrierWave.configure do |config|
   config.cache_dir         = Rails.root.join('tmp/uploads')
   config.fog_credentials   = {
