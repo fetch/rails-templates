@@ -150,5 +150,5 @@ run "mv app/assets/stylesheets/application.css app/assets/stylesheets/applicatio
 run "sed -i '' /require_tree/d app/assets/javascripts/application.js"
 run "sed -i '' /require_tree/d app/assets/stylesheets/application.css.scss"
 
-git add: "."
+git add: "--all ."
 git commit: %Q{ -m 'Setup default gems' }
